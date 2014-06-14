@@ -8,7 +8,7 @@ export CXX = $(PREFIX)g++
 export AR = $(PREFIX)ar
 export CFLAGS += -DUSE_STDPERIPH_DRIVER -ggdb -g3 -std=gnu99 -O0 -Wall -Wstrict-prototypes -mcpu=cortex-m3 $(FPU_USAGE) -mlittle-endian -mthumb -mthumb-interwork -nostartfiles
 export CXXUWFLAGS += -std=gnu99 -Wstrict-prototypes
-export CXXEXFLAGS += -fno-exceptions -fno-rtti -std=gnu++11
+export CXXEXFLAGS +=
 export ASFLAGS = -ggdb -g3 -mcpu=cortex-m3 $(FPU_USAGE) -mlittle-endian
 export AS = $(PREFIX)as
 export LINK = $(PREFIX)gcc
@@ -17,7 +17,7 @@ export OBJCOPY = $(PREFIX)objcopy
 FLASHER = $(RIOTCPU)/$(CPU)/tools/flash.sh
 DEBUGGER = $(RIOTCPU)/$(CPU)/tools/debug.sh
 TERM = miniterm.py -b 115200
-LINKFLAGS =  -DUSE_STDPERIPH_DRIVER -DUSE_STM32_DISCOVERY -g3 -ggdb -mcpu=cortex-m3 $(FPU_USAGE) -mlittle-endian -static -lgcc -mthumb -mthumb-interwork -nostartfiles -T$(RIOTCPU)/$(CPU)/stm32_flash.ld
+LINKFLAGS +=  -DUSE_STDPERIPH_DRIVER -DUSE_STM32_DISCOVERY -g3 -ggdb -mcpu=cortex-m3 $(FPU_USAGE) -mlittle-endian -static -lgcc -mthumb -mthumb-interwork -nostartfiles -T$(RIOTCPU)/$(CPU)/stm32_flash.ld
 
 ifeq ($(strip $(PORT)),)
 	export PORT = /dev/ttyUSB2
@@ -35,7 +35,7 @@ INCLUDES += -I$(RIOTCPU)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdP
 INCLUDES += -I$(RIOTCPU)/stm32f103rey6/include
 
 ifneq (,$(filter defaulttransceiver,$(USEMODULE)))
-	USEMODULE += at86rf231
+	USEMODULE += cc110x_ng
 	USEMODULE += transceiver
 endif
 
