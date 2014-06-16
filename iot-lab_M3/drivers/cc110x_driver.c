@@ -7,9 +7,8 @@
 
 #include "cpu.h"
 
-#include "cc1100.h"
-#include "arch_cc1100.h"
-#include "cc1100_spi.h"
+/* drivers  */
+#include "cc110x_ng.h"
 
 #define	CSn		GPIO_Pin_4
 #define GDO0_line	EXTI_Line0
@@ -193,13 +192,13 @@ void cc110x_spi_unselect(void)
     GPIO_SetBits(GPIOA, CSn);
 }
 
-void cc1100_before_send(void)
+void cc110x_before_send(void)
 {
     //Disable GDO2 interrupt before sending packet
     cc110x_gdo2_disable();
 }
 
-void cc1100_after_send(void)
+void cc110x_after_send(void)
 {
     //Enable GDO2 interrupt after sending packet
     cc110x_gdo2_enable();

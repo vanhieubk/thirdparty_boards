@@ -9,7 +9,8 @@ INCLUDES += -I$(RIOTCPU)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/CMSIS/CM3/Devi
 INCLUDES += -I$(RIOTCPU)/STM32F10x_StdPeriph_Lib_V3.5.0/Libraries/STM32F10x_StdPeriph_Driver/inc
 INCLUDES += -I$(RIOTCPU)/stm32f103rey6/include
 
-INCLUDES += -I$(RIOTBASE)/drivers/cc110x
+INCLUDES += -I$(RIOTBASE)/drivers/cc110x_ng
+INCLUDES += -I$(RIOTBASE)/drivers/include/cc110x_ng
 INCLUDES += -I$(RIOTBASE)/sys/include
 INCLUDES += -I$(RIOTBASE)/sys/net/include
 

@@ -1,3 +1,7 @@
 ifneq (,$(findstring at86rf231,$(USEMODULE)))
 		USEMODULE += at86rf231
 endif
+
+ifneq (,$(filter cc110x_ng,$(USEMODULE)))
+	USEMODULE += cc110x_spi
+endif
