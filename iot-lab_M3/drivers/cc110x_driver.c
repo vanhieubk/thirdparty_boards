@@ -124,7 +124,7 @@ void cc110x_spi_init(void)
 	SPI_Cmd(SPI1, ENABLE);
 }
 
-uint8_t cc1100_txrx(uint8_t value)
+uint8_t cc110x_txrx(uint8_t value)
 {
     uint8_t retval;
     SPI_I2S_SendData(SPI1, value);
