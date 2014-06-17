@@ -72,6 +72,7 @@ void Enable_EXTI_interrupt(EXTITrigger_TypeDef EXTI_trigger, uint32_t EXTI_line)
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 }
+
 static
 void Disable_EXTI_interrupt(uint32_t EXTI_line)
 {
@@ -104,6 +105,11 @@ void cc110x_spi_init(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
 	/*
 	 * SPI
 	 * NOTE: APB2 is 72MHz, prescaler 16 => SPI @ 4.5 MHz, radio spi max is 7.5MHz
@@ -115,7 +121,7 @@ void cc110x_spi_init(void)
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low;
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge;
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4;
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 	SPI_InitStructure.SPI_CRCPolynomial = 7;
 	SPI_Init(SPI1, &SPI_InitStructure);
@@ -127,44 +133,36 @@ void cc110x_spi_init(void)
 uint8_t cc110x_txrx(uint8_t value)
 {
     uint8_t retval;
-    SPI_I2S_SendData(SPI1, value);
-#ifdef DEBUG
-    set_time();
-#endif
 
-    while (!SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE)) {
+    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET) {
 #ifdef DEBUG
         test_time(0);
 #endif
     }
 
+    SPI_I2S_SendData(SPI1, value);
 #ifdef DEBUG
     set_time();
 #endif
 
-    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY)) {
-#ifdef DEBUG
-        test_time(1);
-#endif
-    }
-
-#ifdef DEBUG
-    set_time();
-#endif
-
-    while (!SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE)) {
+    while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET) {
 #ifdef DEBUG
         test_time(2);
 #endif
     }
 
-    retval = (uint8_t)SPI_I2S_ReceiveData(SPI1);
+    retval = SPI_I2S_ReceiveData(SPI1);
     return retval;
 }
 
 void cc110x_spi_cs(void)
 {
     GPIO_ResetBits(GPIOA, CSn);
+}
+
+void cc110x_spi_unselect(void)
+{
+    GPIO_SetBits(GPIOA, CSn);
 }
 
 void cc110x_spi_select(void)
@@ -185,11 +183,6 @@ void cc110x_spi_select(void)
 			cc110x_spi_unselect();		// CS to high
 		}
     }
-}
-
-void cc110x_spi_unselect(void)
-{
-    GPIO_SetBits(GPIOA, CSn);
 }
 
 void cc110x_before_send(void)
@@ -231,8 +224,9 @@ void Init_interrupt(void) {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0|GPIO_Pin_1;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
 	/* Enable AFIO clock */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -247,8 +241,8 @@ void Init_interrupt(void) {
 
 	/* Enable and set EXTI4 Interrupt to the lowest priority */
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
